@@ -1,0 +1,10 @@
+A test file
+ [ ] Todo 1
+ [x] Todo 2 (closed)
+ [/] Todo 3 (ongoing)
+ [-] Todo 4 (rejected)
+ [  ] Todo 5
+[ ] Todo 6
+ [ ]   Todo 7
+ [ x ] Todo 8
+ [    ]    Todo 9

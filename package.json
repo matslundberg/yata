@@ -1,0 +1,41 @@
+{
+  "name": "muisti.in",
+  "description": "Super duper notepad thingy.",
+  "version": "1.0.0",
+  "author": "Mats Lundberg <mats.lundberg@gmail.com>",
+  "private": true,
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development webpack-dev-server --open --hot",
+    "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.23.0",
+    "chevrotain": "^0.32.1",
+    "colors": "^1.1.2",
+    "commander": "^2.11.0",
+    "findit": "^2.0.0",
+    "lunr": "^2.1.2",
+    "rxdb": "^4.0.2",
+    "rxjs": "^5.4.0",
+    "vue": "^2.3.3"
+  },
+  "devDependencies": {
+    "babel-core": "^6.0.0",
+    "babel-loader": "^6.0.0",
+    "babel-preset-env": "^1.5.1",
+    "cross-env": "^3.0.0",
+    "css-loader": "^0.25.0",
+    "file-loader": "^0.9.0",
+    "node-sass": "^4.5.0",
+    "sass-loader": "^5.0.1",
+    "vue-loader": "^12.1.0",
+    "vue-template-compiler": "^2.3.3",
+    "webpack": "^2.6.1",
+    "webpack-dev-server": "^2.4.5"
+  },
+  "bin": {
+    "miin": "./src/cli/miin.js",
+    "miin-task": "./src/cli/miin-task.js",
+    "miin-list": "./src/cli/miin-list.js"
+  }
+}
