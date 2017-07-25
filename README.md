@@ -2,24 +2,54 @@
 
 > Super duper notepad thingy.
 
-## How to Use Command Line
+From Finnish, Muistiin, roughly translated to "to memory".
+
+**NOTE!!** THIS IS PRE-ALPHA QUALITY. Please do not use yet!
+
+## What is it?
+
+A way to interact with notes in text-files stored somewhere. You can:
+ - View individual notes *(coming soon)*
+ - Search all notes *(coming soon)*
+ - Archive a note *(coming soon)*
+ - Style notes using markdown *(coming soon)*
+ - Embed tasks directly in notes using `[ ] An important todo`
+ - List all tasks in notes
+ - Tag notes using `+mytag`
+ - Do @-mention of projects, persons
+ - Add parseable dates using `//yyyy-mm-dd`
+ - Embed file or image using `!image.jpg` *(coming later)*
+
+Muisti.in has these interfaces:
+ - Command Line Interface: `miin`
+  -- e.g `miin list tasks due today`
+ - Single Page Application *(coming soon)*
+ - Atom plugin *(coming later)*
+
+Muisti.in can read notes from the following places:
+ - Filesystem
+ - Dropbox-folder *(coming later)*
+ - Git repository, e.g. Github, Gitlab *(coming later)*
+
+## How to use
+### Command Line Interface -- `miin`
 
 ```
 miin help
-miin tasks
-miin tasks due today
-miin tasks status is completed
-miin tasks status is ongoing
-miin tasks status is rejected
-miin tasks status is open
-miin tasks due tomorrow and status is pending
-miin tasks due next 7 days
-miin tasks due last 7 days
-miin tasks @project
-miin tasks +tag
-miin tasks +tag @project due 7 days open
-miin tags
-miin projects
+miin list tasks
+miin list tasks due today
+miin list tasks status is completed
+miin list tasks status is ongoing
+miin list tasks status is rejected
+miin list tasks status is open
+miin list tasks due tomorrow and status is pending
+miin list tasks due next 7 days
+miin list tasks due last 7 days
+miin list tasks @project
+miin list tasks +tag
+miin list tasks +tag @project due 7 days open
+miin list tags
+miin list projects
 ```
 
 ## Build Setup
@@ -37,5 +67,3 @@ npm run dev
 # build for production with minification
 npm run build
 ```
-
-For detailed explanation on how things work, consult the [docs for vue-loader](http://vuejs.github.io/vue-loader).
