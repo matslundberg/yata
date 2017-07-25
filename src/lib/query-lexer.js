@@ -28,7 +28,6 @@ createToken({ name: "PeriodSpecificToday", pattern: /today/ })
 createToken({ name: "PeriodFuture", pattern: /next/ })
 createToken({ name: "PeriodHistoric", pattern: /last/ })
 
-createToken({ name: "PeriodQty", pattern: /[0-9]+/ })
 createToken({ name: "PeriodSpecifier", pattern: /(days?)/ })
 
 createToken({ name: "Select", pattern: /SELECT/ })

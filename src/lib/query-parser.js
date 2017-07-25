@@ -24,7 +24,6 @@ const Comma = tokenVocabulary.Comma
 const Due = tokenVocabulary.Due
 const PeriodHistoric = tokenVocabulary.PeriodHistoric
 const PeriodFuture = tokenVocabulary.PeriodFuture
-const PeriodQty = tokenVocabulary.PeriodQty
 const PeriodSpecifier = tokenVocabulary.PeriodSpecifier
 const PeriodSpecificYesterday = tokenVocabulary.PeriodSpecificYesterday
 const PeriodSpecificTomorrow = tokenVocabulary.PeriodSpecificTomorrow
@@ -70,13 +69,13 @@ class SelectParser extends Parser {
 
         this.periodClauseHistoric = $.RULE("periodClauseHistoric", () => {
             $.CONSUME(PeriodHistoric)
-            $.CONSUME(PeriodQty)
+            $.CONSUME(Integer)
             $.CONSUME(PeriodSpecifier)
         })
 
         this.periodClauseFuture = $.RULE("periodClauseFuture", () => {
             $.CONSUME(PeriodFuture)
-            $.CONSUME(PeriodQty)
+            $.CONSUME(Integer)
             $.CONSUME(PeriodSpecifier)
         })
 
