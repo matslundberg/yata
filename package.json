@@ -9,13 +9,14 @@
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
+    "await-event": "^2.1.0",
     "babel-polyfill": "^6.23.0",
     "chevrotain": "^0.32.1",
     "colors": "^1.1.2",
     "commander": "^2.11.0",
     "findit": "^2.0.0",
     "lunr": "^2.1.2",
-    "rxdb": "^4.0.2",
+    "rxdb": "^4.1.0",
     "rxjs": "^5.4.0",
     "vue": "^2.3.3"
   },

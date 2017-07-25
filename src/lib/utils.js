@@ -18,3 +18,30 @@ function () {
 
     return str;
 };
+
+module.exports = {
+  char_to_status: function(chr) {
+    var char_to_status = {
+      "x": "completed",
+      "/": "ongoing",
+      "-": "rejected",
+      " ": "open"
+    }
+
+    if(chr == undefined)
+      return char_to_status
+
+    return char_to_status[chr];
+  },
+
+  status_to_char: function(status) {
+    var chrstsmap = this.char_to_status();
+    for(let chr in chrstsmap) {
+      if(chrstsmap[chr] == status) {
+        return ""+chr;
+      }
+    }
+
+    return undefined;
+  }
+}
