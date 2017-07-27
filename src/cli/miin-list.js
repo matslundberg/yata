@@ -20,7 +20,7 @@ query = query.join(" ");
 console.log("data:", data)
 console.log("query:", query)
 
-var __dirname = '/mnt/c/Users/mats.lundberg.INTERNAL/Dropbox/notes/'
+var __dirname = process.env.NOTES_DIR
 //var __dirname = './tests/'
 //var lunr = require('lunr')
 var awaitEvent = require('await-event')

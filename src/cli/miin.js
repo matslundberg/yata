@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 console.log('in miin.js');
-
+require('dotenv').config()
 var program = require('commander');
 
 program
