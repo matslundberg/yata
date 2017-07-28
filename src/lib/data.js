@@ -5,6 +5,17 @@ class Data {
     this.dirname = dirname;
   }
 
+  get_raw_note(note) {
+    var fs = require('fs');
+    var contents = fs.readFileSync(this.dirname+note, 'utf8');
+    return contents;
+  }
+
+  write_raw_note(note, contents) {
+    var fs = require('fs');
+    fs.writeFileSync(this.dirname+note, contents, 'utf8');
+  }
+
   process_notes(process_callback, end_callback) {
       var finder = require('findit')(this.dirname);
       var fs = require('fs');

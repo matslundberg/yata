@@ -15,6 +15,7 @@
     "colors": "^1.1.2",
     "commander": "^2.11.0",
     "dotenv": "^4.0.0",
+    "external-editor": "^2.0.4",
     "findit": "^2.0.0",
     "lunr": "^2.1.2",
     "rxdb": "^4.1.0",
