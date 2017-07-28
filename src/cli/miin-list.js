@@ -2,41 +2,20 @@
 
 require('./../lib/utils.js');
 
-console.log('Lists');
 var program = require('commander');
 program
   .command('<data> [query]', 'List all tags')
   .parse(process.argv);
 
-//console.log(program)
-for(arg of program.args) {
-  //console.log(arg);
-}
 
 var query = program.args;
 var data  = program.args[0]
 query.shift();
 query = query.join(" ");
-console.log("data:", data)
-console.log("query:", query)
+
+console.log("Getting %s %s", data, query)
 
 var __dirname = process.env.NOTES_DIR
-//var __dirname = './tests/'
-//var lunr = require('lunr')
-var awaitEvent = require('await-event')
-
-
-//const Database = require('./database');
-//console.log(finder);
-//finder.find
-//This listens for files found
-
-
-//console.log( awaitEvent(finder, 'end') );
-//yield awaitEvent(finder, 'end')
-
-
-
 
 try {
   var miin = require('./../lib/data.js')(__dirname)

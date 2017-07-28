@@ -3,8 +3,7 @@ var utils = require("./../lib/utils.js");
 class CliOutput_ListTasks {
   render(tasks) {
     for(let task of tasks) {
-      if(task.status != 'completed')
-        this.render_task(task)
+      this.render_task(task)
     }
   }
 

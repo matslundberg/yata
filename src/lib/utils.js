@@ -22,6 +22,7 @@ function () {
 module.exports = {
   char_to_status: function(chr) {
     var char_to_status = {
+      "X": "completed",
       "x": "completed",
       "/": "ongoing",
       "-": "rejected",
@@ -43,5 +44,13 @@ module.exports = {
     }
 
     return undefined;
+  },
+
+  // https://stackoverflow.com/questions/3820381/need-a-basename-function-in-javascript
+  basename: function(str) {
+    var base = new String(str).substring(str.lastIndexOf('/') + 1); 
+    if(base.lastIndexOf(".") != -1)       
+      base = base.substring(0, base.lastIndexOf("."));
+    return base;
   }
 }
