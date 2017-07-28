@@ -13,9 +13,9 @@ class CliOutput_ListTasks {
     //console.log(documents);
     var chr = utils.status_to_char(task.status);
     if(chr == undefined) {
-      var out = "      {0}".format(task.description);
+      var out = "{3}       {0}".format(task.description, task.ref);
     } else {
-      var out = "[{0}] {1} ({2})".format(chr, task.description, task.source);
+      var out = "{3} [{0}] {1} ({2})".format(chr, task.description, task.source, task.ref);
     }
     if(task.status == "completed") {
       console.log(out.green)
