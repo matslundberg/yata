@@ -67,3 +67,9 @@ npm run dev
 # build for production with minification
 npm run build
 ```
+
+## Prereqs
+
+```
+go get -u github.com/logrusorgru/aurora
+```
