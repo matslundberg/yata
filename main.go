@@ -7,12 +7,24 @@ import (
     "log"
     "net/http"
     "strings"
-//    "github.com/fatih/color"
-//    "gopkg.in/h2non/filetype.v1"
     "github.com/logrusorgru/aurora"
+    "crypto/sha256"
+    "encoding/hex"
+    "os"
 )
 
 type TodoStatus int
+type TodoId struct {
+    hashId string
+    ref string
+}
+
+func New(description string, sourceFile string) TodoId {
+    hash := sha256.Sum256([]byte(description+sourceFile))
+    hashId := hex.EncodeToString( hash[:] )
+    ref := hashId[:8]
+    return TodoId{hashId, ref}
+}
 
 const (
     unknown TodoStatus = iota
@@ -22,15 +34,48 @@ const (
     rejected
 )
 
+func TodoStatusToString(status TodoStatus) (string) {
+    var constLookup = map[uint16]string{
+        uint16(unknown): "unknown",
+        uint16(open): "open",
+        uint16(ongoing): "ongoing",
+        uint16(completed): "completed",
+        uint16(rejected): "rejected" }
+
+    return constLookup[uint16(status)]
+}
+
 type Todo struct {
     status TodoStatus
     description string
     source string
-    id string
-    ref string
+    id TodoId
 }
 
-func NewTodoFromString(todoString string, sourceFile string) Todo {
+func (t Todo) print() {
+    PrintTodo(t)
+}
+
+func (t Todo) filter(filter []string) (bool) {
+    match := true
+
+    for i := 0; i < len(filter); i++ {
+        word := filter[i]
+
+        switch(word) {
+        case "status":
+            value := filter[i+2]
+            i = i+2
+            if(TodoStatusToString(t.status) != value) {
+                match = false
+            }
+        }
+    }
+
+    return match
+}
+
+func LoadTodoFromString(todoString string, sourceFile string) Todo {
     statusChar := ""
     description := ""
     i := strings.Index(todoString, "[")
@@ -45,6 +90,8 @@ func NewTodoFromString(todoString string, sourceFile string) Todo {
 
     status := unknown
 
+    id := New(description, sourceFile)
+
     if(statusChar == "") {
         status = open
     } else if(statusChar == "x" || statusChar == "X") {
@@ -55,7 +102,7 @@ func NewTodoFromString(todoString string, sourceFile string) Todo {
         status = rejected
     }
 
-    ret := Todo{status: status, description: description, source: sourceFile, id: "", ref: ""}
+    ret := Todo{status: status, description: description, source: sourceFile, id: id}
     //fmt.Println(ret)
     return ret
 }
@@ -63,26 +110,41 @@ func NewTodoFromString(todoString string, sourceFile string) Todo {
 func PrintTodo(todo Todo) {
     switch todo.status {
     case open:
-        fmt.Println(" [ ] "+todo.description, aurora.Gray(todo.source))
+        fmt.Println(todo.id.ref, "[ ] "+todo.description, aurora.Gray(todo.source))
     case completed:
-        fmt.Println(aurora.Green(" [x] "+todo.description), aurora.Gray(todo.source))
+        fmt.Println(todo.id.ref, aurora.Green("[x] "+todo.description), aurora.Gray(todo.source))
     case ongoing:
-        fmt.Println(aurora.Brown(" [/] "+todo.description), aurora.Gray(todo.source))
+        fmt.Println(todo.id.ref, aurora.Brown("[/] "+todo.description), aurora.Gray(todo.source))
     case rejected:
-        fmt.Println(aurora.Black(" [-] "+todo.description), aurora.Gray(todo.source))
+        fmt.Println(todo.id.ref, aurora.Black("[-] "+todo.description), aurora.Gray(todo.source))
     }
 }
 
-func main() {
-    path := "/home/matslundberg/Dropbox/notes/";
-    //path := "./tests/";
-    
+func parseCommand(command []string) (string, string, []string) {
+    cmd := command[0]
+    data := command[1]
+    filter := command[2:]
+    return cmd, data, filter
+}
+
+type Note struct {
+    filename string
+    content string
+    contentType string
+}
+
+type NotesDatabase struct {
+    path string
+    notes []Note
+}
+
+func LoadDatabase(path string) (NotesDatabase) {
+    notes := make([]Note,0)
+
     files, err := ioutil.ReadDir(path)
     if err != nil {
         log.Fatal(err)
     }
-
-    todos := make([]Todo, 0)
 
     for _, f := range files {
         //fmt.Println(f.Name())
@@ -90,7 +152,8 @@ func main() {
         todo_file := path+f.Name()
         b, err := ioutil.ReadFile(todo_file) // just pass the file name
         if err != nil {
-            fmt.Print(err)
+            //fmt.Print(err)
+            continue
         }
 
         contentType, err := GetFileContentType(b)
@@ -100,31 +163,60 @@ func main() {
 
         //fmt.Println("Content Type: " + contentType)
         if strings.Contains(contentType, "text/plain") {
-            //fmt.Println(b) // print the content as 'bytes'
-
             str := string(b) // convert content to a 'string'
+            note := Note{filename: todo_file, content: str, contentType: contentType}
 
-            //fmt.Println(str) // print the content as a 'string'
+            notes = append(notes, note)
+        }
+    }
 
-            re := regexp.MustCompile("(\\[\\s*( |x|X|/|[-])\\s*\\](.+))")
-            todoStrings := re.FindAllString(str, -1)
-            //fmt.Println(todos)
-            for _, todoString := range todoStrings {
-                //fmt.Println( todoString )
-                todo := NewTodoFromString(todoString, f.Name())
+    return NotesDatabase{path: path,notes: notes}
+}
+
+type dbEntry interface {
+    print()
+    filter([]string) bool
+}
+
+func FindInDatabase(db NotesDatabase, data string, filter []string) ([]dbEntry) {
+
+    todos := make([]dbEntry, 0)
+
+    for _, note := range db.notes {
+        re := regexp.MustCompile("(\\[\\s*( |x|X|/|[-])\\s*\\](.+))")
+        todoStrings := re.FindAllString(note.content, -1)
+
+        for _, todoString := range todoStrings {
+            todo := LoadTodoFromString(todoString, note.filename)
+
+            if(todo.filter(filter)) {
                 todos = append(todos, todo)
             }
-
-        }
-
-    }
-
-    for _, todo := range todos {
-        if(todo.status != completed &&  todo.status != rejected) {
-            PrintTodo(todo)
         }
     }
 
+    return todos
+}
+
+func main() {
+    //path := "/home/matslundberg/Dropbox/notes/";
+    path := "./tests/";
+
+    db := LoadDatabase(path)
+
+    args := os.Args[1:]
+    command, data, filter := parseCommand(args)
+    fmt.Println(command, data, filter)
+
+    switch(command) {
+    case "list":
+        list := FindInDatabase(db, data, filter)
+        //fmt.Println(db)
+        for _, entry := range list {
+            entry.print()
+        }
+    }
+    
 }
 
 func GetFileContentType(buffer []byte) (string, error) {
