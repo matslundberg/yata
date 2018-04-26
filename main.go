@@ -14,16 +14,16 @@ import (
 )
 
 type TodoStatus int
-type TodoId struct {
-    hashId string
-    ref string
-}
+// type TodoId struct {
+//     hashId string
+//     ref string
+// }
 
-func New(description string, sourceFile string) TodoId {
+func New(description string, sourceFile string) string {
     hash := sha256.Sum256([]byte(description+sourceFile))
     hashId := hex.EncodeToString( hash[:] )
-    ref := hashId[:8]
-    return TodoId{hashId, ref}
+    //ref := hashId[:8]
+    return hashId
 }
 
 const (
@@ -49,24 +49,56 @@ type Todo struct {
     status TodoStatus
     description string
     source string
-    id TodoId
+    mentions []Mention
+    _id dbEntryId
 }
 
-func (t Todo) print() {
-    PrintTodo(t)
+func (t Todo) id() dbEntryId {
+    return t._id
+}
+
+func (todo Todo) print() {
+    switch todo.status {
+    case open:
+        fmt.Println(todo.id(), "[ ] "+todo.description, aurora.Gray(todo.source))
+    case completed:
+        fmt.Println(todo.id(), aurora.Green("[x] "+todo.description), aurora.Gray(todo.source))
+    case ongoing:
+        fmt.Println(todo.id(), aurora.Brown("[/] "+todo.description), aurora.Gray(todo.source))
+    case rejected:
+        fmt.Println(todo.id(), aurora.Black("[-] "+todo.description), aurora.Gray(todo.source))
+    }
+}
+
+func (t Todo) hasMention(mention Mention) (bool) {
+    for _, m := range t.mentions {
+        if(m == mention) {
+            return true
+        }
+    }
+
+    return false
 }
 
 func (t Todo) filter(filter []string) (bool) {
     match := true
 
+    re_mentions := regexp.MustCompile("^[@][a-zA-Z0-9]+")
+    //re_tags := regexp.MustCompile("[+][a-zA-Z0-9]+")
+
     for i := 0; i < len(filter); i++ {
         word := filter[i]
 
-        switch(word) {
-        case "status":
+        switch {
+        case word == "status":
             value := filter[i+2]
             i = i+2
             if(TodoStatusToString(t.status) != value) {
+                match = false
+            }
+        case re_mentions.MatchString(word):
+            value := word
+            if(!t.hasMention(Mention{name: value})) {
                 match = false
             }
         }
@@ -75,7 +107,7 @@ func (t Todo) filter(filter []string) (bool) {
     return match
 }
 
-func LoadTodoFromString(todoString string, sourceFile string) Todo {
+func (t Todo) loadFromString(todoString string, sourceFile string) dbEntry {
     statusChar := ""
     description := ""
     i := strings.Index(todoString, "[")
@@ -102,22 +134,61 @@ func LoadTodoFromString(todoString string, sourceFile string) Todo {
         status = rejected
     }
 
-    ret := Todo{status: status, description: description, source: sourceFile, id: id}
+    mentions := make([]Mention, 0)
+    mdt := MentionDataType{}
+    for _, mention := range mdt.findString(description) {
+        mentions = append(mentions, Mention{name: mention})
+    }
+
+    ret := Todo{status: status, description: description, source: sourceFile, _id: dbEntryId(id), mentions: mentions}
     //fmt.Println(ret)
     return ret
 }
 
-func PrintTodo(todo Todo) {
-    switch todo.status {
-    case open:
-        fmt.Println(todo.id.ref, "[ ] "+todo.description, aurora.Gray(todo.source))
-    case completed:
-        fmt.Println(todo.id.ref, aurora.Green("[x] "+todo.description), aurora.Gray(todo.source))
-    case ongoing:
-        fmt.Println(todo.id.ref, aurora.Brown("[/] "+todo.description), aurora.Gray(todo.source))
-    case rejected:
-        fmt.Println(todo.id.ref, aurora.Black("[-] "+todo.description), aurora.Gray(todo.source))
-    }
+type Tag struct {
+    name string
+}
+
+func (t Tag) id() dbEntryId {
+    return dbEntryId(t.name)
+}
+
+func (t Tag) print() {
+    fmt.Println(t.name)
+}
+
+func (t Tag) filter(filter []string) (bool) {
+    match := true
+
+    return match
+}
+
+func (t Tag) loadFromString(content string, sourceFile string) dbEntry {
+    ret := Tag{name: content}
+    return ret
+}
+
+type Mention struct {
+    name string
+}
+
+func (m Mention) id() dbEntryId {
+    return dbEntryId(m.name)
+}
+
+func (t Mention) print() {
+    fmt.Println(t.name)
+}
+
+func (t Mention) filter(filter []string) (bool) {
+    match := true
+
+    return match
+}
+
+func (t Mention) loadFromString(content string, sourceFile string) dbEntry {
+    ret := Mention{name: content}
+    return ret
 }
 
 func parseCommand(command []string) (string, string, []string) {
@@ -173,29 +244,115 @@ func LoadDatabase(path string) (NotesDatabase) {
     return NotesDatabase{path: path,notes: notes}
 }
 
+type dbEntryId string
+
 type dbEntry interface {
     print()
     filter([]string) bool
+    loadFromString(string, string) dbEntry
+    id() dbEntryId
 }
 
-func FindInDatabase(db NotesDatabase, data string, filter []string) ([]dbEntry) {
+type TodoDataType struct {
+}
 
-    todos := make([]dbEntry, 0)
+func (dt TodoDataType) findString(content string) []string {
+    re := regexp.MustCompile("(\\[\\s*( |x|X|/|[-])\\s*\\](.+))")
+    return re.FindAllString(content, -1)
+}
+
+func (dt TodoDataType) find(db NotesDatabase, filter []string) (map[dbEntryId]dbEntry) {
+    todos := make(map[dbEntryId]dbEntry)
 
     for _, note := range db.notes {
-        re := regexp.MustCompile("(\\[\\s*( |x|X|/|[-])\\s*\\](.+))")
-        todoStrings := re.FindAllString(note.content, -1)
+        todoStrings :=  dt.findString(note.content)
 
         for _, todoString := range todoStrings {
-            todo := LoadTodoFromString(todoString, note.filename)
+            todo := Todo{}.loadFromString(todoString, note.filename)
 
             if(todo.filter(filter)) {
-                todos = append(todos, todo)
+                todos[todo.id()] = todo
             }
         }
     }
 
     return todos
+}
+
+type TagDataType struct {
+}
+
+func (dt TagDataType) findString(content string) []string {
+    re := regexp.MustCompile("[+][a-zA-Z0-9]+")
+    return re.FindAllString(content, -1)
+}
+
+func (dt TagDataType) find(db NotesDatabase, filter []string) (map[dbEntryId]dbEntry) {
+    tags := make(map[dbEntryId]dbEntry)
+
+    for _, note := range db.notes {
+        tagsStrings := dt.findString(note.content)
+
+        for _, tagString := range tagsStrings {
+            tag := Tag{}.loadFromString(tagString, note.filename)
+
+            if(tag.filter(filter)) {
+                tags[tag.id()] = tag
+            }
+        }
+    }
+
+    return tags
+}
+
+type MentionDataType struct {
+}
+
+func (dt MentionDataType) findString(content string) []string {
+    re := regexp.MustCompile("[@][a-zA-Z0-9]+")
+    return re.FindAllString(content, -1)
+}
+
+
+func (dt MentionDataType) find(db NotesDatabase, filter []string) (map[dbEntryId]dbEntry) {
+    mentions := make(map[dbEntryId]dbEntry)
+
+    for _, note := range db.notes {
+        mentionStrings := dt.findString(note.content)
+
+        for _, mentionString := range mentionStrings {
+            mention := Mention{}.loadFromString(mentionString, note.filename)
+
+            if(mention.filter(filter)) {
+                mentions[mention.id()] = mention;
+            }
+        }
+    }
+
+    return mentions
+}
+
+type dbDataType interface {
+    find(db NotesDatabase, filter []string) (map[dbEntryId]dbEntry)
+    findString(content string) []string
+}
+
+func LoadDataType(data string) dbDataType {
+    switch(data) {
+    case "tasks":
+        return TodoDataType{}
+    case "tags":
+        return TagDataType{}
+    case "projects", "mentions":
+        return MentionDataType{}
+    }
+
+    return nil
+}
+
+func FindInDatabase(db NotesDatabase, data string, filter []string) (map[dbEntryId]dbEntry) {
+    dt := LoadDataType(data)
+    return dt.find(db, filter)
 }
 
 func main() {
