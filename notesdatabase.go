@@ -79,7 +79,7 @@ func LoadDataType(data string) dbDataType {
     return nil
 }
 
-func FindInDatabase(db NotesDatabase, data string, filter []string) (map[dbEntryId]dbEntry) {
+func (db NotesDatabase) find(data string, filter []string) (map[dbEntryId]dbEntry) {
     dt := LoadDataType(data)
     return dt.find(db, filter)
 }

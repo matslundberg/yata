@@ -26,7 +26,7 @@ func main() {
 
     switch(command) {
     case "list":
-        list := FindInDatabase(db, data, filter)
+        list := db.find(data, filter)
         //fmt.Println(db)
         for _, entry := range list {
             entry.print()
