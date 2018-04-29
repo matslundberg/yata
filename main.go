@@ -50,6 +50,7 @@ type Todo struct {
     description string
     source string
     mentions []Mention
+    tags []Tag
     _id dbEntryId
 }
 
@@ -80,11 +81,21 @@ func (t Todo) hasMention(mention Mention) (bool) {
     return false
 }
 
+func (t Todo) hasTag(tag Tag) (bool) {
+    for _, t := range t.tags {
+        if(t == tag) {
+            return true
+        }
+    }
+
+    return false
+}
+
 func (t Todo) filter(filter []string) (bool) {
     match := true
 
     re_mentions := regexp.MustCompile("^[@][a-zA-Z0-9]+")
-    //re_tags := regexp.MustCompile("[+][a-zA-Z0-9]+")
+    re_tags := regexp.MustCompile("[+][a-zA-Z0-9]+")
 
     for i := 0; i < len(filter); i++ {
         word := filter[i]
@@ -99,6 +110,11 @@ func (t Todo) filter(filter []string) (bool) {
         case re_mentions.MatchString(word):
             value := word
             if(!t.hasMention(Mention{name: value})) {
+                match = false
+            }
+        case re_tags.MatchString(word):
+            value := word
+            if(!t.hasTag(Tag{name: value})) {
                 match = false
             }
         }
@@ -140,7 +156,13 @@ func (t Todo) loadFromString(todoString string, sourceFile string) dbEntry {
         mentions = append(mentions, Mention{name: mention})
     }
 
-    ret := Todo{status: status, description: description, source: sourceFile, _id: dbEntryId(id), mentions: mentions}
+    tags := make([]Tag, 0)
+    tdt := TagDataType{}
+    for _, tag := range tdt.findString(description) {
+        tags = append(tags, Tag{name: tag})
+    }
+
+    ret := Todo{status: status, description: description, source: sourceFile, _id: dbEntryId(id), mentions: mentions, tags: tags}
     //fmt.Println(ret)
     return ret
 }
