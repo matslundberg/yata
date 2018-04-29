@@ -1,10 +1,11 @@
 A test file
- [ ] Todo 1
- [x] Todo 2 (closed)
+ [ ] Todo 1 @project1
+ [x] Todo 2 (closed) @matsl
  [/] Todo 3 (ongoing)
- [-] Todo 4 (rejected)
+ [-] Todo 4 (rejected) @mention
  [  ] Todo 5
 [ ] Todo 6
- [ ]   Todo 7
- [ x ] Todo 8
+ +mytag @mention
+ [ ]   Todo 7 +tag2
+ [ x ] Todo 8 +tag2 @mention
  [    ]    Todo 9
