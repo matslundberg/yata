@@ -17,6 +17,20 @@ type NotesDatabase struct {
     notes []Note
 }
 
+type dbEntryId string
+
+type dbEntry interface {
+    print()
+    filter([]string) bool
+    loadFromString(string, string) dbEntry
+    id() dbEntryId
+}
+
+type dbDataType interface {
+    find(db NotesDatabase, filter []string) (map[dbEntryId]dbEntry)
+    findString(content string) []string
+}
+
 func LoadDatabase(path string) (NotesDatabase, error) {
     notes := make([]Note,0)
 
@@ -50,20 +64,6 @@ func LoadDatabase(path string) (NotesDatabase, error) {
     }
 
     return NotesDatabase{path: path,notes: notes}, nil
-}
-
-type dbEntryId string
-
-type dbEntry interface {
-    print()
-    filter([]string) bool
-    loadFromString(string, string) dbEntry
-    id() dbEntryId
-}
-
-type dbDataType interface {
-    find(db NotesDatabase, filter []string) (map[dbEntryId]dbEntry)
-    findString(content string) []string
 }
 
 func LoadDataType(data string) dbDataType {
