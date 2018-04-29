@@ -50,6 +50,11 @@ miin list tasks +tag
 miin list tasks +tag @project due 7 days open
 miin list tags
 miin list projects
+miin complete task 1afe2bb6
+miin complete tasks in file filename
+miin complete tasks in 
+miin list tasks from jira due in 7 days
+miin close these
 ```
 
 ## Build Setup
