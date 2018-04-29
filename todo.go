@@ -11,7 +11,7 @@ import (
 
 type TodoStatus int
 
-func New(description string, sourceFile string) string {
+func CreateTodoId(description string, sourceFile string) string {
     hash := sha256.Sum256([]byte(description+sourceFile))
     hashId := hex.EncodeToString( hash[:] )
     //ref := hashId[:8]
@@ -115,7 +115,7 @@ func (t Todo) filter(filter []string) (bool) {
     return match
 }
 
-func (t Todo) loadFromString(todoString string, sourceFile string) dbEntry {
+func LoadTodoStatusFromString(todoString string) (TodoStatus, string) {
     statusChar := ""
     description := ""
     i := strings.Index(todoString, "[")
@@ -130,8 +130,6 @@ func (t Todo) loadFromString(todoString string, sourceFile string) dbEntry {
 
     status := unknown
 
-    id := New(description, sourceFile)
-
     if(statusChar == "") {
         status = open
     } else if(statusChar == "x" || statusChar == "X") {
@@ -142,20 +140,38 @@ func (t Todo) loadFromString(todoString string, sourceFile string) dbEntry {
         status = rejected
     }
 
-    mentions := make([]Mention, 0)
-    mdt := MentionDataType{}
-    for _, mention := range mdt.findString(description) {
-        mentions = append(mentions, Mention{name: mention})
-    }
+    return status, description
+}
 
+func LoadTagsFromString(todoString string) ([]Tag) {
     tags := make([]Tag, 0)
     tdt := TagDataType{}
-    for _, tag := range tdt.findString(description) {
+    for _, tag := range tdt.findString(todoString) {
         tags = append(tags, Tag{name: tag})
     }
 
+    return tags
+}
+
+func LoadMentionsFromString(todoString string) ([]Mention) {
+    mentions := make([]Mention, 0)
+    mdt := MentionDataType{}
+    for _, mention := range mdt.findString(todoString) {
+        mentions = append(mentions, Mention{name: mention})
+    }
+
+    return mentions
+}
+
+func (t Todo) loadFromString(todoString string, sourceFile string) dbEntry {
+
+    status, description := LoadTodoStatusFromString(todoString)
+    id := CreateTodoId(description, sourceFile)
+    tags := LoadTagsFromString(todoString)
+    mentions := LoadMentionsFromString(todoString)
+
     ret := Todo{status: status, description: description, source: sourceFile, _id: dbEntryId(id), mentions: mentions, tags: tags}
-    //fmt.Println(ret)
+
     return ret
 }
 
