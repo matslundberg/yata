@@ -40,12 +40,11 @@ func LoadDatabase(path string) (NotesDatabase, error) {
     }
 
     for _, f := range files {
-        //fmt.Println(f.Name())
         
-        todo_file := path+f.Name()
-        b, err := ioutil.ReadFile(todo_file) // just pass the file name
+        filename := path+f.Name()
+        b, err := ioutil.ReadFile(filename)
         if err != nil {
-            //fmt.Print(err)
+            // Just ignore files which cannot be read.
             continue
         }
 
@@ -54,10 +53,9 @@ func LoadDatabase(path string) (NotesDatabase, error) {
             panic(err)
         }
 
-        //fmt.Println("Content Type: " + contentType)
         if strings.Contains(contentType, "text/plain") {
             str := string(b) // convert content to a 'string'
-            note := Note{filename: todo_file, content: str, contentType: contentType}
+            note := Note{filename: filename, content: str, contentType: contentType}
 
             notes = append(notes, note)
         }
