@@ -43,23 +43,23 @@ type Todo struct {
     source string
     mentions []Mention
     tags []Tag
-    _id dbEntryId
+    id dbEntryId
 }
 
-func (t Todo) id() dbEntryId {
-    return t._id
+func (t Todo) Id() dbEntryId {
+    return t.id
 }
 
 func (todo Todo) print() {
     switch todo.status {
     case open:
-        fmt.Println(todo.id(), "[ ] "+todo.description, aurora.Gray(todo.source))
+        fmt.Println(todo.Id(), "[ ] "+todo.description, aurora.Gray(todo.source))
     case completed:
-        fmt.Println(todo.id(), aurora.Green("[x] "+todo.description), aurora.Gray(todo.source))
+        fmt.Println(todo.Id(), aurora.Green("[x] "+todo.description), aurora.Gray(todo.source))
     case ongoing:
-        fmt.Println(todo.id(), aurora.Brown("[/] "+todo.description), aurora.Gray(todo.source))
+        fmt.Println(todo.Id(), aurora.Brown("[/] "+todo.description), aurora.Gray(todo.source))
     case rejected:
-        fmt.Println(todo.id(), aurora.Black("[-] "+todo.description), aurora.Gray(todo.source))
+        fmt.Println(todo.Id(), aurora.Black("[-] "+todo.description), aurora.Gray(todo.source))
     }
 }
 
@@ -170,7 +170,7 @@ func (t Todo) loadFromString(todoString string, sourceFile string) dbEntry {
     tags := LoadTagsFromString(todoString)
     mentions := LoadMentionsFromString(todoString)
 
-    ret := Todo{status: status, description: description, source: sourceFile, _id: dbEntryId(id), mentions: mentions, tags: tags}
+    ret := Todo{status: status, description: description, source: sourceFile, id: dbEntryId(id), mentions: mentions, tags: tags}
 
     return ret
 }
@@ -193,7 +193,7 @@ func (dt TodoDataType) find(db NotesDatabase, filter []string) (map[dbEntryId]db
             todo := Todo{}.loadFromString(todoString, note.filename)
 
             if(todo.filter(filter)) {
-                todos[todo.id()] = todo
+                todos[todo.Id()] = todo
             }
         }
     }

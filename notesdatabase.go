@@ -23,7 +23,7 @@ type dbEntry interface {
     print()
     filter([]string) bool
     loadFromString(string, string) dbEntry
-    id() dbEntryId
+    Id() dbEntryId
 }
 
 type dbDataType interface {

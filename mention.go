@@ -9,7 +9,7 @@ type Mention struct {
     name string
 }
 
-func (m Mention) id() dbEntryId {
+func (m Mention) Id() dbEntryId {
     return dbEntryId(m.name)
 }
 
@@ -47,7 +47,7 @@ func (dt MentionDataType) find(db NotesDatabase, filter []string) (map[dbEntryId
             mention := Mention{}.loadFromString(mentionString, note.filename)
 
             if(mention.filter(filter)) {
-                mentions[mention.id()] = mention;
+                mentions[mention.Id()] = mention;
             }
         }
     }

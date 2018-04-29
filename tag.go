@@ -9,7 +9,7 @@ type Tag struct {
     name string
 }
 
-func (t Tag) id() dbEntryId {
+func (t Tag) Id() dbEntryId {
     return dbEntryId(t.name)
 }
 
@@ -46,7 +46,7 @@ func (dt TagDataType) find(db NotesDatabase, filter []string) (map[dbEntryId]dbE
             tag := Tag{}.loadFromString(tagString, note.filename)
 
             if(tag.filter(filter)) {
-                tags[tag.id()] = tag
+                tags[tag.Id()] = tag
             }
         }
     }
