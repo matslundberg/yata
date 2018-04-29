@@ -54,3 +54,8 @@ func (dt MentionDataType) find(db NotesDatabase, filter []string) (map[dbEntryId
 
     return mentions
 }
+
+func (dt MentionDataType) findById(db NotesDatabase, id dbEntryId) dbEntry {
+	panic("Not implemented")
+    return nil
+}

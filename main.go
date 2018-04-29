@@ -36,11 +36,16 @@ func run() (error) {
 
     switch(command) {
     case "list":
-        list := db.find(data, filter)
-        //fmt.Println(db)
+        list, err := db.find(data, filter)
+        if err != nil {
+            return fmt.Errorf("Failed to run find on database <= %s", err)
+        }
+
         for _, entry := range list {
             entry.print()
         }
+
+        db.saveResultSet(list)
     }
 
     return nil

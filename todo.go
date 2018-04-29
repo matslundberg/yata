@@ -110,6 +110,12 @@ func (t Todo) filter(filter []string) (bool) {
         word := filter[i]
 
         switch {
+        case word == "id":
+            value := filter[i+2]
+            i = i+2
+            if(t.Id() != dbEntryId(value)) {
+                match = false
+            }
         case word == "status":
             value := filter[i+2]
             i = i+2
@@ -207,3 +213,9 @@ func (dt TodoDataType) find(db NotesDatabase, filter []string) (map[dbEntryId]db
 
     return todos
 }
+
+
+func (dt TodoDataType) findById(db NotesDatabase, id dbEntryId) dbEntry {
+    return dt.find(db, []string{"id", "is", string(id)})[id]
+}
+

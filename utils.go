@@ -21,3 +21,4 @@ func GetFileContentType(buffer []byte) (string, error) {
 
     return contentType, nil
 }
+

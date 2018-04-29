@@ -4,6 +4,11 @@ import (
 	"fmt"
     "io/ioutil"
     "strings"
+    "encoding/json"
+)
+
+const (
+	RS_FILE = "/tmp/miin.rs_file"
 )
 
 type Note struct {
@@ -29,6 +34,7 @@ type dbEntry interface {
 type dbDataType interface {
     find(db NotesDatabase, filter []string) (map[dbEntryId]dbEntry)
     findString(content string) []string
+    findById(db NotesDatabase, id dbEntryId) dbEntry
 }
 
 func LoadDatabase(path string) (NotesDatabase, error) {
@@ -77,8 +83,54 @@ func LoadDataType(data string) dbDataType {
     return nil
 }
 
-func (db NotesDatabase) find(data string, filter []string) (map[dbEntryId]dbEntry) {
+func (db NotesDatabase) find(data string, filter []string) (map[dbEntryId]dbEntry, error) {
     dt := LoadDataType(data)
-    return dt.find(db, filter)
+    // TODO Fix this hack
+    if dt == nil && data == "these" {
+    	rs, err := db.getResultSet()
+    	if err != nil {
+    		return nil, fmt.Errorf("Failed to get resultSet <= %s", err)
+    	}
+    	return rs, nil
+    }
+    return dt.find(db, filter), nil
+}
+
+func (db NotesDatabase) getResultSet() (map[dbEntryId]dbEntry, error) {
+	//fmt.Println(resultSet)
+	data, err := ioutil.ReadFile(RS_FILE)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to read from resultSet file <= %s", err)
+	}
+
+	var unmarshalled map[string]interface{}
+
+	if err := json.Unmarshal(data, &unmarshalled); err != nil {
+		//fmt.Println(err)
+		return nil, fmt.Errorf("Failed to deserialize resultSet file <= %s", err)
+	}
+
+	ret := make(map[dbEntryId]dbEntry,0)
+	for id, _ := range unmarshalled {
+		ret[dbEntryId(id)] = TodoDataType{}.findById(db, dbEntryId(id))
+	}
+
+	return ret, nil
+}
+
+func (db NotesDatabase) saveResultSet(resultSet map[dbEntryId]dbEntry) (error) {
+	//fmt.Println(resultSet)
+	str, err := json.Marshal(resultSet)
+	if err != nil {
+		return fmt.Errorf("Failed to convert resultSet to json <= %s", err)
+	}
+	//fmt.Println(string(str))
+
+	if err := ioutil.WriteFile(RS_FILE, str, 0644); err != nil {
+		return fmt.Errorf("Failed to write contents to resultSet file <= %s", err)
+	}
+
+	return nil
 }
 

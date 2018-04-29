@@ -53,3 +53,9 @@ func (dt TagDataType) find(db NotesDatabase, filter []string) (map[dbEntryId]dbE
 
     return tags
 }
+
+func (dt TagDataType) findById(db NotesDatabase, id dbEntryId) dbEntry {
+	panic("Not implemented")
+    return nil
+}
+
