@@ -37,6 +37,23 @@ func TodoStatusToString(status TodoStatus) (string) {
     return constLookup[uint16(status)]
 }
 
+func CharToTodoStatus(char string) (TodoStatus) {
+    status := unknown
+
+    switch char {
+    case "":
+        status = open
+    case "x", "X":
+        status = completed
+    case "/":
+        status = ongoing
+    case "-":
+        status = rejected
+    }
+
+    return status
+}
+
 type Todo struct {
     status TodoStatus
     description string
@@ -128,17 +145,7 @@ func LoadTodoStatusFromString(todoString string) (TodoStatus, string) {
         }
     }
 
-    status := unknown
-
-    if(statusChar == "") {
-        status = open
-    } else if(statusChar == "x" || statusChar == "X") {
-        status = completed
-    } else if(statusChar == "/") {
-        status = ongoing
-    } else if(statusChar == "-") {
-        status = rejected
-    }
+    status := CharToTodoStatus(statusChar)
 
     return status, description
 }
