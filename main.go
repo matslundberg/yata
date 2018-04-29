@@ -21,14 +21,17 @@ func run() (error) {
         return fmt.Errorf("Env variable MIIN_PATH not set")
     }
 
-    db := LoadDatabase(path)
+    db, err := LoadDatabase(path)
+    if err != nil {
+        return fmt.Errorf("Failed to open database <= %s", err)
+    }
 
     args := os.Args[1:]
     command, data, filter, err := parseCommand(args)
     if err != nil {
         return fmt.Errorf("Failed to parse commmand", args)
     }
-    
+
     fmt.Println("Running command", command, data, filter)
 
     switch(command) {

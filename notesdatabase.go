@@ -1,8 +1,8 @@
 package main
 
 import (
+	"fmt"
     "io/ioutil"
-    "log"
     "strings"
 )
 
@@ -17,12 +17,12 @@ type NotesDatabase struct {
     notes []Note
 }
 
-func LoadDatabase(path string) (NotesDatabase) {
+func LoadDatabase(path string) (NotesDatabase, error) {
     notes := make([]Note,0)
 
     files, err := ioutil.ReadDir(path)
     if err != nil {
-        log.Fatal(err)
+        return NotesDatabase{}, fmt.Errorf("Failed to open directory %s <= %s", path, err)
     }
 
     for _, f := range files {
@@ -49,7 +49,7 @@ func LoadDatabase(path string) (NotesDatabase) {
         }
     }
 
-    return NotesDatabase{path: path,notes: notes}
+    return NotesDatabase{path: path,notes: notes}, nil
 }
 
 type dbEntryId string
