@@ -1,24 +1,24 @@
 package main
 
 import (
-    "fmt"
-    "regexp"
+	"fmt"
+	"regexp"
 )
 
 type Tag struct {
-    name string
+	name string
 }
 
 func (t Tag) Id() dbEntryId {
-    return dbEntryId(t.name)
+	return dbEntryId(t.name)
 }
 
 func (t Tag) Source() string {
-    return ""
+	return ""
 }
 
 func (t Tag) LineNum() int {
-    return 0
+	return 0
 }
 
 func (t Tag) update(command string, value string) dbEntry {
@@ -26,52 +26,51 @@ func (t Tag) update(command string, value string) dbEntry {
 }
 
 func (t Tag) print() {
-    fmt.Println(t.name)
+	fmt.Println(t.name)
 }
 
 func (t Tag) toString() string {
 	return t.name
 }
 
-func (t Tag) filter(filter []string) (bool) {
-    match := true
+func (t Tag) filter(filter []string) bool {
+	match := true
 
-    return match
+	return match
 }
 
 func (t Tag) loadFromString(content string, sourceFile string, lineNum int) dbEntry {
-    ret := Tag{name: content}
-    return ret
+	ret := Tag{name: content}
+	return ret
 }
 
 type TagDataType struct {
 }
 
 func (dt TagDataType) findString(content string) []string {
-    re := regexp.MustCompile("[+][a-zA-Z0-9]+")
-    return re.FindAllString(content, -1)
+	re := regexp.MustCompile("[+][a-zA-Z0-9]+")
+	return re.FindAllString(content, -1)
 }
 
-func (dt TagDataType) find(db NotesDatabase, filter []string) (dbResultSet) {
-    tags := make(dbResultSet)
+func (dt TagDataType) find(db NotesDatabase, filter []string) dbResultSet {
+	tags := make(dbResultSet)
 
-    for _, note := range db.notes {
-        tagsStrings := dt.findString(note.content)
+	for _, note := range db.notes {
+		tagsStrings := dt.findString(note.content)
 
-        for _, tagString := range tagsStrings {
-            tag := Tag{}.loadFromString(tagString, note.filename, 0)
+		for _, tagString := range tagsStrings {
+			tag := Tag{}.loadFromString(tagString, note.filename, 0)
 
-            if(tag.filter(filter)) {
-                tags[tag.Id()] = tag
-            }
-        }
-    }
+			if tag.filter(filter) {
+				tags[tag.Id()] = tag
+			}
+		}
+	}
 
-    return tags
+	return tags
 }
 
 func (dt TagDataType) findById(db NotesDatabase, id dbEntryId) dbEntry {
 	panic("Not implemented")
-    return nil
+	return nil
 }
-
