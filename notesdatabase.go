@@ -29,9 +29,13 @@ type dbResultSet map[dbEntryId]dbEntry
 
 type dbEntry interface {
     print()
+    toString() string
     filter([]string) bool
-    loadFromString(string, string) dbEntry
+    update(string, string) dbEntry
+    loadFromString(string, string, int) dbEntry
     Id() dbEntryId
+    Source() string
+    LineNum() int
 }
 
 type dbDataType interface {
@@ -141,3 +145,29 @@ func (db NotesDatabase) saveResultSet(resultSet dbResultSet) (error) {
 	return nil
 }
 
+func (db NotesDatabase) update(entry dbEntry, action string) error {
+    switch action {
+    case "complete":
+        //fmt.Println("Updating", entry)
+        data, err := ioutil.ReadFile(entry.Source())
+        if err != nil {
+            return fmt.Errorf("Failed to open file %s <= %s", entry.Source(), err)
+        }
+
+        lines := strings.Split(string(data), "\n")
+
+        entry = entry.update("status", "completed")
+        //fmt.Println(entry)
+        lines[ entry.LineNum() ] = entry.toString()
+
+        // for number, line := range lines {
+	       //  fmt.Println(number, line)
+        // }
+
+        new_content := strings.Join(lines, "\n")
+        if err := ioutil.WriteFile(entry.Source(), []byte(new_content), 0644); err != nil {
+            return fmt.Errorf("Failed to write contents to file %s <= %s", entry.Source(), err)
+        }
+    }
+    return nil
+}

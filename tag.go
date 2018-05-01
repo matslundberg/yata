@@ -13,8 +13,24 @@ func (t Tag) Id() dbEntryId {
     return dbEntryId(t.name)
 }
 
+func (t Tag) Source() string {
+    return ""
+}
+
+func (t Tag) LineNum() int {
+    return 0
+}
+
+func (t Tag) update(command string, value string) dbEntry {
+	return t
+}
+
 func (t Tag) print() {
     fmt.Println(t.name)
+}
+
+func (t Tag) toString() string {
+	return t.name
 }
 
 func (t Tag) filter(filter []string) (bool) {
@@ -23,7 +39,7 @@ func (t Tag) filter(filter []string) (bool) {
     return match
 }
 
-func (t Tag) loadFromString(content string, sourceFile string) dbEntry {
+func (t Tag) loadFromString(content string, sourceFile string, lineNum int) dbEntry {
     ret := Tag{name: content}
     return ret
 }
@@ -43,7 +59,7 @@ func (dt TagDataType) find(db NotesDatabase, filter []string) (dbResultSet) {
         tagsStrings := dt.findString(note.content)
 
         for _, tagString := range tagsStrings {
-            tag := Tag{}.loadFromString(tagString, note.filename)
+            tag := Tag{}.loadFromString(tagString, note.filename, 0)
 
             if(tag.filter(filter)) {
                 tags[tag.Id()] = tag

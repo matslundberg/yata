@@ -37,6 +37,17 @@ func TodoStatusToString(status TodoStatus) (string) {
     return constLookup[uint16(status)]
 }
 
+func StringToTodoStatus(status string) (TodoStatus) {
+    var constLookup = map[string]TodoStatus{
+        "unknown": (unknown),
+        "open": (open),
+        "ongoing": (ongoing),
+        "completed": (completed),
+        "rejected": (rejected) }
+
+    return constLookup[status]
+}
+
 func CharToTodoStatus(char string) (TodoStatus) {
     status := unknown
 
@@ -61,11 +72,31 @@ type Todo struct {
     mentions []Mention
     tags []Tag
     id dbEntryId
+    lineNum int
 }
 
 func (t Todo) Id() dbEntryId {
     return t.id
 }
+
+func (t Todo) Source() string {
+    return t.source
+}
+
+func (t Todo) LineNum() int {
+    return t.lineNum
+}
+
+func (t Todo) update(command string, value string) dbEntry {
+    switch command {
+    case "status":
+        fmt.Println(command, value, StringToTodoStatus(value))
+        t.status = StringToTodoStatus(value)
+    }
+
+    return t
+}
+
 
 func (todo Todo) print() {
     switch todo.status {
@@ -78,6 +109,21 @@ func (todo Todo) print() {
     case rejected:
         fmt.Println(todo.Id(), aurora.Black("[-] "+todo.description), aurora.Gray(todo.source))
     }
+}
+
+func (todo Todo) toString() string {
+    switch todo.status {
+    case open:
+        return fmt.Sprintf(" [ ] "+todo.description)
+    case completed:
+        return fmt.Sprintf(" [x] "+todo.description)
+    case ongoing:
+        return fmt.Sprintf(" [/] "+todo.description)
+    case rejected:
+        return fmt.Sprintf(" [-] "+todo.description)
+    }
+
+    return ""
 }
 
 func (t Todo) hasMention(mention Mention) (bool) {
@@ -176,14 +222,14 @@ func LoadMentionsFromString(todoString string) ([]Mention) {
     return mentions
 }
 
-func (t Todo) loadFromString(todoString string, sourceFile string) dbEntry {
+func (t Todo) loadFromString(todoString string, sourceFile string, lineNum int) dbEntry {
 
     status, description := LoadTodoStatusFromString(todoString)
     id := CreateTodoId(description, sourceFile)
     tags := LoadTagsFromString(todoString)
     mentions := LoadMentionsFromString(todoString)
 
-    ret := Todo{status: status, description: description, source: sourceFile, id: dbEntryId(id), mentions: mentions, tags: tags}
+    ret := Todo{status: status, description: description, source: sourceFile, id: dbEntryId(id), mentions: mentions, tags: tags, lineNum: lineNum}
 
     return ret
 }
@@ -200,13 +246,15 @@ func (dt TodoDataType) find(db NotesDatabase, filter []string) (dbResultSet) {
     todos := make(dbResultSet)
 
     for _, note := range db.notes {
-        todoStrings :=  dt.findString(note.content)
+        for lineNum, line := range strings.Split(note.content, "\n") {
+            todoStrings :=  dt.findString(line)
 
-        for _, todoString := range todoStrings {
-            todo := Todo{}.loadFromString(todoString, note.filename)
+            for _, todoString := range todoStrings {
+                todo := Todo{}.loadFromString(todoString, note.filename, lineNum)
 
-            if(todo.filter(filter)) {
-                todos[todo.Id()] = todo
+                if(todo.filter(filter)) {
+                    todos[todo.Id()] = todo
+                }
             }
         }
     }
