@@ -37,8 +37,8 @@ func (dt MentionDataType) findString(content string) []string {
 }
 
 
-func (dt MentionDataType) find(db NotesDatabase, filter []string) (map[dbEntryId]dbEntry) {
-    mentions := make(map[dbEntryId]dbEntry)
+func (dt MentionDataType) find(db NotesDatabase, filter []string) (dbResultSet) {
+    mentions := make(dbResultSet)
 
     for _, note := range db.notes {
         mentionStrings := dt.findString(note.content)

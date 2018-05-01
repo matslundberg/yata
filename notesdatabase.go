@@ -5,6 +5,7 @@ import (
     "io/ioutil"
     "strings"
     "encoding/json"
+    "os"
 )
 
 const (
@@ -24,6 +25,8 @@ type NotesDatabase struct {
 
 type dbEntryId string
 
+type dbResultSet map[dbEntryId]dbEntry
+
 type dbEntry interface {
     print()
     filter([]string) bool
@@ -32,7 +35,7 @@ type dbEntry interface {
 }
 
 type dbDataType interface {
-    find(db NotesDatabase, filter []string) (map[dbEntryId]dbEntry)
+    find(db NotesDatabase, filter []string) (dbResultSet)
     findString(content string) []string
     findById(db NotesDatabase, id dbEntryId) dbEntry
 }
@@ -83,7 +86,7 @@ func LoadDataType(data string) dbDataType {
     return nil
 }
 
-func (db NotesDatabase) find(data string, filter []string) (map[dbEntryId]dbEntry, error) {
+func (db NotesDatabase) find(data string, filter []string) (dbResultSet, error) {
     dt := LoadDataType(data)
     // TODO Fix this hack
     if dt == nil && data == "these" {
@@ -96,22 +99,26 @@ func (db NotesDatabase) find(data string, filter []string) (map[dbEntryId]dbEntr
     return dt.find(db, filter), nil
 }
 
-func (db NotesDatabase) getResultSet() (map[dbEntryId]dbEntry, error) {
+func (db NotesDatabase) getResultSet() (dbResultSet, error) {
+	if _, err := os.Stat(RS_FILE); os.IsNotExist(err) {
+		return make(dbResultSet, 0), nil
+	}
+
 	//fmt.Println(resultSet)
 	data, err := ioutil.ReadFile(RS_FILE)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to read from resultSet file <= %s", err)
+		return make(dbResultSet, 0), fmt.Errorf("Failed to read from resultSet file <= %s", err)
 	}
 
 	var unmarshalled map[string]interface{}
 
 	if err := json.Unmarshal(data, &unmarshalled); err != nil {
 		//fmt.Println(err)
-		return nil, fmt.Errorf("Failed to deserialize resultSet file <= %s", err)
+		return make(dbResultSet, 0), fmt.Errorf("Failed to deserialize resultSet file <= %s", err)
 	}
 
-	ret := make(map[dbEntryId]dbEntry,0)
+	ret := make(dbResultSet, 0)
 	for id, _ := range unmarshalled {
 		ret[dbEntryId(id)] = TodoDataType{}.findById(db, dbEntryId(id))
 	}
@@ -119,7 +126,7 @@ func (db NotesDatabase) getResultSet() (map[dbEntryId]dbEntry, error) {
 	return ret, nil
 }
 
-func (db NotesDatabase) saveResultSet(resultSet map[dbEntryId]dbEntry) (error) {
+func (db NotesDatabase) saveResultSet(resultSet dbResultSet) (error) {
 	//fmt.Println(resultSet)
 	str, err := json.Marshal(resultSet)
 	if err != nil {

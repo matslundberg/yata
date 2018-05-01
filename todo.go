@@ -196,8 +196,8 @@ func (dt TodoDataType) findString(content string) []string {
     return re.FindAllString(content, -1)
 }
 
-func (dt TodoDataType) find(db NotesDatabase, filter []string) (map[dbEntryId]dbEntry) {
-    todos := make(map[dbEntryId]dbEntry)
+func (dt TodoDataType) find(db NotesDatabase, filter []string) (dbResultSet) {
+    todos := make(dbResultSet)
 
     for _, note := range db.notes {
         todoStrings :=  dt.findString(note.content)

@@ -36,8 +36,8 @@ func (dt TagDataType) findString(content string) []string {
     return re.FindAllString(content, -1)
 }
 
-func (dt TagDataType) find(db NotesDatabase, filter []string) (map[dbEntryId]dbEntry) {
-    tags := make(map[dbEntryId]dbEntry)
+func (dt TagDataType) find(db NotesDatabase, filter []string) (dbResultSet) {
+    tags := make(dbResultSet)
 
     for _, note := range db.notes {
         tagsStrings := dt.findString(note.content)
