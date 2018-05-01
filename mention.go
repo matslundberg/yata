@@ -29,7 +29,7 @@ func (t Mention) print() {
 	fmt.Println(t.name)
 }
 
-func (t Mention) toString() string {
+func (t Mention) String() string {
 	return t.name
 }
 

@@ -110,7 +110,7 @@ func (todo Todo) print() {
 	}
 }
 
-func (todo Todo) toString() string {
+func (todo Todo) String() string {
 	switch todo.status {
 	case open:
 		return fmt.Sprintf(" [ ] " + todo.description)

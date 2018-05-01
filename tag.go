@@ -29,7 +29,7 @@ func (t Tag) print() {
 	fmt.Println(t.name)
 }
 
-func (t Tag) toString() string {
+func (t Tag) String() string {
 	return t.name
 }
 

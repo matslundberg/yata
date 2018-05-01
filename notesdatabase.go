@@ -29,7 +29,7 @@ type dbResultSet map[dbEntryId]dbEntry
 
 type dbEntry interface {
 	print()
-	toString() string
+	String() string
 	filter([]string) bool
 	update(string, string) dbEntry
 	loadFromString(string, string, int) dbEntry
@@ -158,7 +158,7 @@ func (db NotesDatabase) update(entry dbEntry, action string) error {
 
 		entry = entry.update("status", "completed")
 		//fmt.Println(entry)
-		lines[entry.LineNum()] = entry.toString()
+		lines[entry.LineNum()] = entry.String()
 
 		// for number, line := range lines {
 		//  fmt.Println(number, line)
