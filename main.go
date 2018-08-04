@@ -5,11 +5,32 @@ import (
 	"os"
 )
 
+func printHelp() {
+	fmt.Printf(
+`
+muistiin $action $type $filter
+
+Example commands
+muistiin list tasks status is open +tag @mention
+muistiin list tags
+muistiin list mentions
+muistiin list projects
+muistiin complete tasks status is open
+muistiin complete tasks these // References previous search result
+
+NOTE! Projects and mentions are the same thing...
+`)
+}
+
 func parseCommand(command []string) (string, string, []string, error) {
-	cmd := command[0]
-	data := command[1]
-	filter := command[2:]
-	return cmd, data, filter, nil
+	if(len(command) > 2) {
+		cmd := command[0]
+		data := command[1]
+		filter := command[2:]
+		return cmd, data, filter, nil
+	} else {
+		return "", "", make([]string, 0), fmt.Errorf("Failed to parse command")
+	}
 }
 
 func run() error {
@@ -27,7 +48,9 @@ func run() error {
 	args := os.Args[1:]
 	command, data, filter, err := parseCommand(args)
 	if err != nil {
-		return fmt.Errorf("Failed to parse commmand", args)
+		printHelp();
+		return nil;
+		//return fmt.Errorf("Failed to parse commmand", args)
 	}
 
 	fmt.Println("Running command", command, data, filter)
