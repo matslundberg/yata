@@ -22,14 +22,21 @@ NOTE! Projects and mentions are the same thing...
 `)
 }
 
-func parseCommand(command []string) (string, string, []string, error) {
+type Command string
+type DataType string
+type Filter string
+
+func parseCommand(command []string) (Command, DataType, []Filter, error) {
 	if(len(command) > 2) {
-		cmd := command[0]
-		data := command[1]
-		filter := command[2:]
-		return cmd, data, filter, nil
+		cmd := Command(command[0])
+		data := DataType(command[1])
+		filters := make([]Filter, len(command)-2)
+		for k, filter := range command[2:] {
+			filters[k-2] = Filter(filter)
+		}
+		return cmd, data, filters, nil
 	} else {
-		return "", "", make([]string, 0), fmt.Errorf("Failed to parse command")
+		return Command(""), DataType(""), make([]Filter, 0), fmt.Errorf("Failed to parse command")
 	}
 }
 

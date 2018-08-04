@@ -33,7 +33,7 @@ func (t Tag) String() string {
 	return t.name
 }
 
-func (t Tag) filter(filter []string) bool {
+func (t Tag) filter(filter []Filter) bool {
 	match := true
 
 	return match
@@ -52,7 +52,7 @@ func (dt TagDataType) findString(content string) []string {
 	return re.FindAllString(content, -1)
 }
 
-func (dt TagDataType) find(db NotesDatabase, filter []string) dbResultSet {
+func (dt TagDataType) find(db NotesDatabase, filter []Filter) dbResultSet {
 	tags := make(dbResultSet)
 
 	for _, note := range db.notes {
