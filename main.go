@@ -45,7 +45,6 @@ func run() error {
 
 		db.saveResultSet(list)
 	case "complete":
-		fmt.Println("These will be completed...")
 		list, err := db.find(data, filter)
 		if err != nil {
 			return fmt.Errorf("Failed to run find on database <= %s", err)
@@ -54,6 +53,8 @@ func run() error {
 		for _, entry := range list {
 			if err := db.update(entry, command); err != nil {
 				return fmt.Errorf("Failed to update dbEntry with %s <= %s", command, err)
+			} else {
+				entry.print()
 			}
 		}
 	}
