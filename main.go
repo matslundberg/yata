@@ -8,15 +8,15 @@ import (
 func printHelp() {
 	fmt.Printf(
 `
-muistiin $action $type $filter
+yata $action $type $filter
 
 Example commands
-muistiin list tasks status is open +tag @mention
-muistiin list tags
-muistiin list mentions
-muistiin list projects
-muistiin complete tasks status is open
-muistiin complete tasks these // References previous search result
+yata list tasks status is open +tag @mention
+yata list tags
+yata list mentions
+yata list projects
+yata complete tasks status is open
+yata complete tasks these // References previous search result
 
 NOTE! Projects and mentions are the same thing...
 `)
@@ -41,10 +41,10 @@ func parseCommand(command []string) (Command, DataType, []Filter, error) {
 }
 
 func run() error {
-	path := os.Getenv("MIIN_PATH")
+	path := os.Getenv("YATA_PATH")
 
 	if path == "" {
-		return fmt.Errorf("Env variable MIIN_PATH not set")
+		return fmt.Errorf("Env variable YATA_PATH not set")
 	}
 
 	db, err := LoadDatabase(path)

@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	RS_FILE = "/tmp/miin.rs_file"
+	RS_FILE = "/tmp/yata.rs_file"
 )
 
 type Note struct {
