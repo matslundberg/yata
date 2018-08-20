@@ -33,7 +33,7 @@ func (t Mention) String() string {
 	return t.name
 }
 
-func (t Mention) filter(filter []string) bool {
+func (t Mention) filter(filter []Filter) bool {
 	match := true
 
 	return match
@@ -52,7 +52,7 @@ func (dt MentionDataType) findString(content string) []string {
 	return re.FindAllString(content, -1)
 }
 
-func (dt MentionDataType) find(db NotesDatabase, filter []string) dbResultSet {
+func (dt MentionDataType) find(db NotesDatabase, filter []Filter) dbResultSet {
 	mentions := make(dbResultSet)
 
 	for _, note := range db.notes {

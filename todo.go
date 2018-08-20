@@ -145,14 +145,14 @@ func (t Todo) hasTag(tag Tag) bool {
 	return false
 }
 
-func (t Todo) filter(filter []string) bool {
+func (t Todo) filter(filter []Filter) bool {
 	match := true
 
 	re_mentions := regexp.MustCompile("^[@][a-zA-Z0-9]+")
 	re_tags := regexp.MustCompile("[+][a-zA-Z0-9]+")
 
 	for i := 0; i < len(filter); i++ {
-		word := filter[i]
+		word := string(filter[i])
 
 		switch {
 		case word == "id":
@@ -164,7 +164,7 @@ func (t Todo) filter(filter []string) bool {
 		case word == "status":
 			value := filter[i+2]
 			i = i + 2
-			if TodoStatusToString(t.status) != value {
+			if TodoStatusToString(t.status) != string(value) {
 				match = false
 			}
 		case re_mentions.MatchString(word):
@@ -241,7 +241,7 @@ func (dt TodoDataType) findString(content string) []string {
 	return re.FindAllString(content, -1)
 }
 
-func (dt TodoDataType) find(db NotesDatabase, filter []string) dbResultSet {
+func (dt TodoDataType) find(db NotesDatabase, filter []Filter) dbResultSet {
 	todos := make(dbResultSet)
 
 	for _, note := range db.notes {
@@ -262,5 +262,5 @@ func (dt TodoDataType) find(db NotesDatabase, filter []string) dbResultSet {
 }
 
 func (dt TodoDataType) findById(db NotesDatabase, id dbEntryId) dbEntry {
-	return dt.find(db, []string{"id", "is", string(id)})[id]
+	return dt.find(db, []Filter{ Filter("id"), Filter("is"), Filter(id)})[id]
 }

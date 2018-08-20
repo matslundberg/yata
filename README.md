@@ -1,8 +1,6 @@
-# muisti.in
+# Yet Another Todo App
 
 > Super duper notepad thingy.
-
-From Finnish, Muistiin, roughly translated to "to memory".
 
 **NOTE!!** THIS IS PRE-ALPHA QUALITY. Please do not use yet!
 
@@ -20,57 +18,45 @@ A way to interact with notes in text-files stored somewhere. You can:
  - Add parseable dates using `//yyyy-mm-dd`
  - Embed file or image using `!image.jpg` *(coming later)*
 
-Muisti.in has these interfaces:
- - Command Line Interface: `miin`
-  -- e.g `miin list tasks due today`
+Yata has these interfaces:
+ - Command Line Interface: `yata`
+  -- e.g `yata list tasks due today`
  - Single Page Application *(coming soon)*
- - Atom plugin *(coming later)*
 
-Muisti.in can read notes from the following places:
+Yata can read notes from the following places:
  - Filesystem
  - Dropbox-folder *(coming later)*
  - Git repository, e.g. Github, Gitlab *(coming later)*
 
 ## How to use
-### Command Line Interface -- `miin`
+### Command Line Interface -- `yata`
 
 ```
-miin help
-miin list tasks
-miin list tasks due today
-miin list tasks status is completed
-miin list tasks status is ongoing
-miin list tasks status is rejected
-miin list tasks status is open
-miin list tasks due tomorrow and status is pending
-miin list tasks due next 7 days
-miin list tasks due last 7 days
-miin list tasks @project
-miin list tasks +tag
-miin list tasks +tag @project due 7 days open
-miin list tags
-miin list projects
-miin complete task 1afe2bb6
-miin complete tasks in file filename
-miin complete tasks in 
-miin list tasks from jira due in 7 days
-miin close these
+yata help
+yata list tasks
+yata list tasks due today
+yata list tasks status is completed
+yata list tasks status is ongoing
+yata list tasks status is rejected
+yata list tasks status is open
+yata list tasks due tomorrow and status is pending
+yata list tasks due next 7 days
+yata list tasks due last 7 days
+yata list tasks @project
+yata list tasks +tag
+yata list tasks +tag @project due 7 days open
+yata list tags
+yata list projects
+yata complete task 1afe2bb6
+yata complete tasks in file filename
+yata complete tasks in 
+yata list tasks from jira due in 7 days
+yata close these
 ```
 
 ## Build Setup
 
 ``` bash
-# install dependencies
-npm install
-
-# install local miin.js available at command line
-npm link
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
 ```
 
 ## Prereqs

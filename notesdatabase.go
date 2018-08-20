@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	RS_FILE = "/tmp/miin.rs_file"
+	RS_FILE = "/tmp/yata.rs_file"
 )
 
 type Note struct {
@@ -30,7 +30,7 @@ type dbResultSet map[dbEntryId]dbEntry
 type dbEntry interface {
 	print()
 	String() string
-	filter([]string) bool
+	filter([]Filter) bool
 	update(string, string) dbEntry
 	loadFromString(string, string, int) dbEntry
 	Id() dbEntryId
@@ -39,7 +39,7 @@ type dbEntry interface {
 }
 
 type dbDataType interface {
-	find(db NotesDatabase, filter []string) dbResultSet
+	find(db NotesDatabase, filter []Filter) dbResultSet
 	findString(content string) []string
 	findById(db NotesDatabase, id dbEntryId) dbEntry
 }
@@ -77,7 +77,7 @@ func LoadDatabase(path string) (NotesDatabase, error) {
 	return NotesDatabase{path: path, notes: notes}, nil
 }
 
-func LoadDataType(data string) dbDataType {
+func LoadDataType(data DataType) dbDataType {
 	switch data {
 	case "tasks":
 		return TodoDataType{}
@@ -90,7 +90,7 @@ func LoadDataType(data string) dbDataType {
 	return nil
 }
 
-func (db NotesDatabase) find(data string, filter []string) (dbResultSet, error) {
+func (db NotesDatabase) find(data DataType, filter []Filter) (dbResultSet, error) {
 	dt := LoadDataType(data)
 	// TODO Fix this hack
 	if dt == nil && data == "these" {
@@ -145,7 +145,7 @@ func (db NotesDatabase) saveResultSet(resultSet dbResultSet) error {
 	return nil
 }
 
-func (db NotesDatabase) update(entry dbEntry, action string) error {
+func (db NotesDatabase) update(entry dbEntry, action Command) error {
 	switch action {
 	case "complete":
 		//fmt.Println("Updating", entry)

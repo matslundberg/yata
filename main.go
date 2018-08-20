@@ -5,18 +5,46 @@ import (
 	"os"
 )
 
-func parseCommand(command []string) (string, string, []string, error) {
-	cmd := command[0]
-	data := command[1]
-	filter := command[2:]
-	return cmd, data, filter, nil
+func printHelp() {
+	fmt.Printf(
+`
+yata $action $type $filter
+
+Example commands
+yata list tasks status is open +tag @mention
+yata list tags
+yata list mentions
+yata list projects
+yata complete tasks status is open
+yata complete tasks these // References previous search result
+
+NOTE! Projects and mentions are the same thing...
+`)
+}
+
+type Command string
+type DataType string
+type Filter string
+
+func parseCommand(command []string) (Command, DataType, []Filter, error) {
+	if(len(command) > 2) {
+		cmd := Command(command[0])
+		data := DataType(command[1])
+		filters := make([]Filter, len(command)-2)
+		for k, filter := range command[2:] {
+			filters[k-2] = Filter(filter)
+		}
+		return cmd, data, filters, nil
+	} else {
+		return Command(""), DataType(""), make([]Filter, 0), fmt.Errorf("Failed to parse command")
+	}
 }
 
 func run() error {
-	path := os.Getenv("MIIN_PATH")
+	path := os.Getenv("YATA_PATH")
 
 	if path == "" {
-		return fmt.Errorf("Env variable MIIN_PATH not set")
+		return fmt.Errorf("Env variable YATA_PATH not set")
 	}
 
 	db, err := LoadDatabase(path)
@@ -27,7 +55,9 @@ func run() error {
 	args := os.Args[1:]
 	command, data, filter, err := parseCommand(args)
 	if err != nil {
-		return fmt.Errorf("Failed to parse commmand", args)
+		printHelp();
+		return nil;
+		//return fmt.Errorf("Failed to parse commmand", args)
 	}
 
 	fmt.Println("Running command", command, data, filter)

@@ -6,6 +6,6 @@ A test file
  [  ] Todo 5
 [ ] Todo 6
  +mytag @mention
- [ ]   Todo 7 +tag2
- [ x ] Todo 8 +tag2 @mention
+ [x] Todo 7 +tag2
+ [x] Todo 8 +tag2 @mention
  [    ]    Todo 9
