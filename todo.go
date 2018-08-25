@@ -79,8 +79,8 @@ func (t Todo) Id() dbEntryId {
 	return t.id
 }
 
-func (t Todo) ReadableId() dbEntryId {
-	return t.id[:5]
+func (t Todo) ReadableId() string {
+	return string(t.id[:5])
 }
 
 func (t Todo) Source() string {
@@ -157,12 +157,21 @@ func (t Todo) filter(filter []Filter) bool {
 
 	for i := 0; i < len(filter); i++ {
 		word := string(filter[i])
-
 		switch {
 		case word == "id":
 			value := filter[i+2]
 			i = i + 2
-			if t.Id() != dbEntryId(value) {
+
+			id_match := false;
+			if(t.ReadableId() == string(value)) {
+				id_match = true
+			}
+
+			if t.Id() == dbEntryId(value) {
+				id_match = true
+			}
+
+			if(!id_match) {
 				match = false
 			}
 		case word == "status":
