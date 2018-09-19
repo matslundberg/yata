@@ -32,4 +32,11 @@ func TestParseCommand(t *testing.T) {
 	assert.Equal(command, Command("list"), "parseCommand failed to parse command")
 	assert.Equal(data, DataType("tasks"), "parseCommand failed to parse data")
 	assert.Equal(len(filter), 1, "parseCommand failed to parse filter")
+
+	args = "list mentions"
+	command, data, filter, err = parseCommand(strings.Split(args, " "))
+	assert.Nil(err, fmt.Sprintf("parseCommand failed for %s", args))
+	assert.Equal(command, Command("list"), "parseCommand failed to parse command")
+	assert.Equal(data, DataType("mentions"), "parseCommand failed to parse data")
+	assert.Equal(len(filter), 0, "parseCommand failed to parse filter")
 }

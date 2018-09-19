@@ -27,12 +27,12 @@ type DataType string
 type Filter string
 
 func parseCommand(command []string) (Command, DataType, []Filter, error) {
-	if(len(command) > 2) {
+	if(len(command) >= 2) {
 		cmd := Command(command[0])
 		data := DataType(command[1])
 		filters := make([]Filter, len(command)-2)
 		for k, filter := range command[2:] {
-			filters[k-2] = Filter(filter)
+			filters[k] = Filter(filter)
 		}
 		return cmd, data, filters, nil
 	} else {
