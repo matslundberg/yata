@@ -18,6 +18,23 @@ yata list projects
 yata complete tasks status is open
 yata complete tasks these // References previous search result
 
+
+Better alternative?
+yata list open
+yata list open @mention
+yata list ongoing @mention
+yata list completed
+yata list rejected
+yata list projects
+yata list mentions
+yata list tags
+yata edit $task_id
+yata complete open
+yata complete these
+yata add New thing todo @mention +tag   --> Appends to yyyy-mm-dd.todo
+yata reject $task_id
+yata 
+
 NOTE! Projects and mentions are the same thing...
 `)
 }
@@ -27,12 +44,23 @@ type DataType string
 type Filter string
 
 func parseCommand(command []string) (Command, DataType, []Filter, error) {
-	if(len(command) > 2) {
+	if(len(command) >= 2) {
 		cmd := Command(command[0])
 		data := DataType(command[1])
-		filters := make([]Filter, len(command)-2)
-		for k, filter := range command[2:] {
-			filters[k-2] = Filter(filter)
+		filter_count := 2
+		//fmt.Println(command)
+		switch data {
+			case "tasks", "projects", "mentions", "tags":
+				// do nothing
+			default:
+				data = DataType("tasks")
+				filter_count = 1
+		}
+
+		filters := make([]Filter, len(command)-filter_count)
+		for k, filter := range command[filter_count:] {
+			//fmt.Println(k, filter_count)
+			filters[k] = Filter(filter)
 		}
 		return cmd, data, filters, nil
 	} else {
