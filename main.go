@@ -47,6 +47,7 @@ func parseCommand(command []string) (Command, DataType, []Filter, error) {
 	if(len(command) >= 2) {
 		cmd := Command(command[0])
 		data := DataType(command[1])
+
 		filter_count := 2
 		//fmt.Println(command)
 		switch data {

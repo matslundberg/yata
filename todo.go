@@ -79,6 +79,10 @@ func (t Todo) Id() dbEntryId {
 	return t.id
 }
 
+func (t Todo) ReadableId() string {
+	return string(t.id[:5])
+}
+
 func (t Todo) Source() string {
 	return t.source
 }
@@ -100,13 +104,13 @@ func (t Todo) update(command string, value string) dbEntry {
 func (todo Todo) print() {
 	switch todo.status {
 	case open:
-		fmt.Println(todo.Id(), "[ ] "+todo.description, aurora.Gray(todo.source))
+		fmt.Println(todo.ReadableId(), "[ ] "+todo.description, aurora.Gray(todo.source))
 	case completed:
-		fmt.Println(todo.Id(), aurora.Green("[x] "+todo.description), aurora.Gray(todo.source))
+		fmt.Println(todo.ReadableId(), aurora.Green("[x] "+todo.description), aurora.Gray(todo.source))
 	case ongoing:
-		fmt.Println(todo.Id(), aurora.Brown("[/] "+todo.description), aurora.Gray(todo.source))
+		fmt.Println(todo.ReadableId(), aurora.Brown("[/] "+todo.description), aurora.Gray(todo.source))
 	case rejected:
-		fmt.Println(todo.Id(), aurora.Black("[-] "+todo.description), aurora.Gray(todo.source))
+		fmt.Println(todo.ReadableId(), aurora.Black("[-] "+todo.description), aurora.Gray(todo.source))
 	}
 }
 
@@ -153,12 +157,21 @@ func (t Todo) filter(filter []Filter) bool {
 
 	for i := 0; i < len(filter); i++ {
 		word := string(filter[i])
-
 		switch {
 		case word == "id":
 			value := filter[i+2]
 			i = i + 2
-			if t.Id() != dbEntryId(value) {
+
+			id_match := false;
+			if(t.ReadableId() == string(value)) {
+				id_match = true
+			}
+
+			if t.Id() == dbEntryId(value) {
+				id_match = true
+			}
+
+			if(!id_match) {
 				match = false
 			}
 		case word == "status":
