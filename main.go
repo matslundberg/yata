@@ -106,8 +106,8 @@ func parseCommand(command []string) (Command, DataType, []Filter, error) {
 
 func parseFilters(strings []string) ([]Filter, error) {
 	re_mentions := regexp.MustCompile("^[@][a-zA-Z0-9]+")
-	re_tags := regexp.MustCompile("[+][a-zA-Z0-9]+")
-	re_todo_id := regexp.MustCompile("#[a-zA-Z0-9]{5}")
+	re_tags := regexp.MustCompile("^[+][a-zA-Z0-9]+")
+	re_todo_id := regexp.MustCompile("^(id\\:)[a-zA-Z0-9]{5}")
 	filters := make([]Filter, 0)
 
 	for i := 0; i < len(strings); i++ {
@@ -149,7 +149,7 @@ func parseFilters(strings []string) ([]Filter, error) {
 			filters = append(filters, Filter{
 				field: filterField_id,
 				comp:  compType_exactMatch,
-				value: word[1:],
+				value: word[3:],
 			})
 		case StringToTodoStatus(word) != unknown:
 			filters = append(filters, Filter{
@@ -185,6 +185,7 @@ func run() error {
 	args := os.Args[1:]
 	command, data, filter, err := parseCommand(args)
 	if err != nil {
+		fmt.Println(args, err)
 		printHelp()
 		return nil
 		//return fmt.Errorf("Failed to parse commmand", args)

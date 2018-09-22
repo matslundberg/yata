@@ -117,7 +117,7 @@ func TestParseCommand(t *testing.T) {
 		data, DataType("tags"),
 		filter, []Filter{})
 
-	args = "edit #ABC12"
+	args = "edit id:ABC12"
 	command, data, filter, err = parseCommand(strings.Split(args, " "))
 	assertCommandParams(t, args, err,
 		command, Command("edit"),
@@ -133,6 +133,24 @@ func TestParseCommand(t *testing.T) {
 		data, DataType("tasks"),
 		filter, []Filter{
 			newFilter(filterField_status, compType_exactMatch, "open"),
+		})
+
+	args = "complete id:abc12"
+	command, data, filter, err = parseCommand(strings.Split(args, " "))
+	assertCommandParams(t, args, err,
+		command, Command("complete"),
+		data, DataType("tasks"),
+		filter, []Filter{
+			newFilter(filterField_id, compType_exactMatch, "abc12"),
+		})
+
+	args = "complete id is abc12"
+	command, data, filter, err = parseCommand(strings.Split(args, " "))
+	assertCommandParams(t, args, err,
+		command, Command("complete"),
+		data, DataType("tasks"),
+		filter, []Filter{
+			newFilter(filterField_id, compType_exactMatch, "abc12"),
 		})
 
 	args = "complete these"
@@ -151,7 +169,7 @@ func TestParseCommand(t *testing.T) {
 	//	ata, DataType("tasks"),
 	//	filter, []Filter{Filter("New"), Filter("thing"), Filter("todo"), Filter("@mention"), Filter("+tag")})
 
-	args = "reject #ABC12"
+	args = "reject id:ABC12"
 	command, data, filter, err = parseCommand(strings.Split(args, " "))
 	assertCommandParams(t, args, err,
 		command, Command("reject"),
