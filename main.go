@@ -3,11 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
 )
 
 func printHelp() {
 	fmt.Printf(
-`
+		`
 yata $action $type $filter
 
 Example commands
@@ -41,32 +42,132 @@ NOTE! Projects and mentions are the same thing...
 
 type Command string
 type DataType string
-type Filter string
+
+type FilterField int
+
+const (
+	filterField_id FilterField = iota
+	filterField_status
+	filterField_mention
+	filterField_tag
+	filterField_reference
+)
+
+type ComparisonType int
+
+const (
+	compType_exactMatch ComparisonType = iota
+	compType_noMatch
+	compType_partlyMatch
+)
+
+type Filter struct {
+	field FilterField
+	comp  ComparisonType
+	value string
+}
+
+func newFilter(field FilterField, comp ComparisonType, value string) Filter {
+	return Filter{
+		field: field,
+		comp:  comp,
+		value: value,
+	}
+}
 
 func parseCommand(command []string) (Command, DataType, []Filter, error) {
-	if(len(command) >= 2) {
+	if len(command) >= 2 {
 		cmd := Command(command[0])
 		data := DataType(command[1])
 
 		filter_count := 2
 		//fmt.Println(command)
 		switch data {
-			case "tasks", "projects", "mentions", "tags":
-				// do nothing
-			default:
-				data = DataType("tasks")
-				filter_count = 1
+		case "tasks", "projects", "mentions", "tags":
+			// do nothing
+		default:
+			data = DataType("tasks")
+			filter_count = 1
 		}
 
-		filters := make([]Filter, len(command)-filter_count)
+		filters_strings := make([]string, len(command)-filter_count)
 		for k, filter := range command[filter_count:] {
-			//fmt.Println(k, filter_count)
-			filters[k] = Filter(filter)
+			filters_strings[k] = filter
+		}
+		filters, err := parseFilters(filters_strings)
+		if err != nil {
+			return Command(""), DataType(""), make([]Filter, 0), fmt.Errorf("Failed to parse filters")
 		}
 		return cmd, data, filters, nil
 	} else {
 		return Command(""), DataType(""), make([]Filter, 0), fmt.Errorf("Failed to parse command")
 	}
+}
+
+func parseFilters(strings []string) ([]Filter, error) {
+	re_mentions := regexp.MustCompile("^[@][a-zA-Z0-9]+")
+	re_tags := regexp.MustCompile("[+][a-zA-Z0-9]+")
+	re_todo_id := regexp.MustCompile("#[a-zA-Z0-9]{5}")
+	filters := make([]Filter, 0)
+
+	for i := 0; i < len(strings); i++ {
+		word := strings[i]
+		switch {
+		case word == "id":
+			value := strings[i+2]
+			i = i + 2
+
+			filters = append(filters, Filter{
+				field: filterField_id,
+				comp:  compType_exactMatch,
+				value: value,
+			})
+
+		case word == "status":
+			value := strings[i+2]
+			i = i + 2
+
+			filters = append(filters, Filter{
+				field: filterField_status,
+				comp:  compType_exactMatch,
+				value: value,
+			})
+		case re_mentions.MatchString(word):
+			filters = append(filters, Filter{
+				field: filterField_mention,
+				comp:  compType_exactMatch,
+				value: word,
+			})
+
+		case re_tags.MatchString(word):
+			filters = append(filters, Filter{
+				field: filterField_tag,
+				comp:  compType_exactMatch,
+				value: word,
+			})
+		case re_todo_id.MatchString(word):
+			filters = append(filters, Filter{
+				field: filterField_id,
+				comp:  compType_exactMatch,
+				value: word[1:],
+			})
+		case StringToTodoStatus(word) != unknown:
+			filters = append(filters, Filter{
+				field: filterField_status,
+				comp:  compType_exactMatch,
+				value: word,
+			})
+		case word == "these":
+			filters = append(filters, Filter{
+				field: filterField_reference,
+				comp:  compType_exactMatch,
+				value: word,
+			})
+		}
+	}
+
+	return filters, nil
+
 }
 
 func run() error {
@@ -84,8 +185,8 @@ func run() error {
 	args := os.Args[1:]
 	command, data, filter, err := parseCommand(args)
 	if err != nil {
-		printHelp();
-		return nil;
+		printHelp()
+		return nil
 		//return fmt.Errorf("Failed to parse commmand", args)
 	}
 
