@@ -171,3 +171,24 @@ func (db NotesDatabase) update(entry dbEntry, action Command) error {
 	}
 	return nil
 }
+
+func (db NotesDatabase) add(data DataType, content Content) error {
+	fmt.Printf("Adding %s, %s\n", data, content)
+
+	filename := db.path + "yata-todos.txt"
+
+	file_content_bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return fmt.Errorf("Failed to open file %s <= %s", filename, err)
+	}
+
+	file_content := string(file_content_bytes)
+
+	new_file_content := file_content + "\n" + " [ ] " + string(content) + ""
+
+	if err := ioutil.WriteFile(filename, []byte(new_file_content), 0644); err != nil {
+		return fmt.Errorf("Failed to write contents to file %s <= %s", filename, err)
+	}
+
+	return nil
+}

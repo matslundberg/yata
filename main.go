@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 )
 
 func printHelp() {
@@ -42,7 +43,7 @@ NOTE! Projects and mentions are the same thing...
 
 type Command string
 type DataType string
-
+type Content string
 type FilterField int
 
 const (
@@ -75,9 +76,16 @@ func newFilter(field FilterField, comp ComparisonType, value string) Filter {
 	}
 }
 
-func parseCommand(command []string) (Command, DataType, []Filter, error) {
+func parseCommand(command []string) (Command, DataType, []Filter, Content, error) {
 	if len(command) >= 2 {
 		cmd := Command(command[0])
+
+		if(cmd == "add") {
+			data := DataType("tasks")
+			content := Content( strings.Join(command[1:], " ") )
+			return cmd, data, make([]Filter, 0), content, nil
+		}
+
 		data := DataType(command[1])
 
 		filter_count := 2
@@ -96,11 +104,11 @@ func parseCommand(command []string) (Command, DataType, []Filter, error) {
 		}
 		filters, err := parseFilters(filters_strings)
 		if err != nil {
-			return Command(""), DataType(""), make([]Filter, 0), fmt.Errorf("Failed to parse filters")
+			return Command(""), DataType(""), make([]Filter, 0), Content(""), fmt.Errorf("Failed to parse filters")
 		}
-		return cmd, data, filters, nil
+		return cmd, data, filters, Content(""), nil
 	} else {
-		return Command(""), DataType(""), make([]Filter, 0), fmt.Errorf("Failed to parse command")
+		return Command(""), DataType(""), make([]Filter, 0), Content(""), fmt.Errorf("Failed to parse command")
 	}
 }
 
@@ -183,7 +191,7 @@ func run() error {
 	}
 
 	args := os.Args[1:]
-	command, data, filter, err := parseCommand(args)
+	command, data, filter, content, err := parseCommand(args)
 	if err != nil {
 		fmt.Println(args, err)
 		printHelp()
@@ -194,6 +202,13 @@ func run() error {
 	fmt.Println("Running command", command, data, filter)
 
 	switch command {
+	case "add":
+		err := db.add(data, content)
+		if err != nil {
+			return fmt.Errorf("Failed to add %s <= %s", data, err)
+		} else {
+			fmt.Printf("New todo added")
+		}
 	case "list":
 		list, err := db.find(data, filter)
 		if err != nil {
