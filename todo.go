@@ -149,50 +149,39 @@ func (t Todo) hasTag(tag Tag) bool {
 	return false
 }
 
-func (t Todo) filter(filter []Filter) bool {
+func (t Todo) filter(filters []Filter) bool {
 	match := true
 
-	re_mentions := regexp.MustCompile("^[@][a-zA-Z0-9]+")
-	re_tags := regexp.MustCompile("[+][a-zA-Z0-9]+")
-
-	for i := 0; i < len(filter); i++ {
-		word := string(filter[i])
-		switch {
-		case word == "id":
-			value := filter[i+2]
-			i = i + 2
-
-			id_match := false;
-			if(t.ReadableId() == string(value)) {
+	for _, filter := range filters {
+		switch filter.field {
+		case filterField_id:
+			id_match := false
+			if t.ReadableId() == string(filter.value) {
 				id_match = true
 			}
 
-			if t.Id() == dbEntryId(value) {
+			if t.Id() == dbEntryId(filter.value) {
 				id_match = true
 			}
 
-			if(!id_match) {
+			if !id_match {
 				match = false
 			}
-		case word == "status":
-			value := filter[i+2]
-			i = i + 2
-			if TodoStatusToString(t.status) != string(value) {
+		case filterField_status:
+			if TodoStatusToString(t.status) != string(filter.value) {
 				match = false
 			}
-		case re_mentions.MatchString(word):
-			value := word
-			if (!t.hasMention(Mention{name: value})) {
+		case filterField_mention:
+			if (!t.hasMention(Mention{name: filter.value})) {
 				match = false
 			}
-		case re_tags.MatchString(word):
-			value := word
-			if (!t.hasTag(Tag{name: value})) {
+		case filterField_tag:
+			if (!t.hasTag(Tag{name: filter.value})) {
 				match = false
 			}
 		}
-	}
 
+	}
 	return match
 }
 
@@ -275,5 +264,10 @@ func (dt TodoDataType) find(db NotesDatabase, filter []Filter) dbResultSet {
 }
 
 func (dt TodoDataType) findById(db NotesDatabase, id dbEntryId) dbEntry {
-	return dt.find(db, []Filter{ Filter("id"), Filter("is"), Filter(id)})[id]
+	return dt.find(db, []Filter{
+		Filter{
+			field: filterField_id,
+			comp:  compType_exactMatch,
+			value: string(id),
+		}})[id]
 }
