@@ -1,0 +1,18 @@
+name: yata
+version: git
+summary: Yet Another Todo App
+description: |
+  List and manage todos in your text-files.
+
+grade: devel
+confinement: devmode
+
+parts:
+  yata:
+    source: .
+    plugin: go
+    go-importpath: github.com/matslundberg/yata
+
+apps:
+  yata:
+    command: yata
