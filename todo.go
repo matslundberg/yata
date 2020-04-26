@@ -104,13 +104,13 @@ func (t Todo) update(command string, value string) dbEntry {
 func (todo Todo) print() {
 	switch todo.status {
 	case open:
-		fmt.Println(todo.ReadableId(), "[ ] "+todo.description, aurora.Gray(todo.source))
+		fmt.Println(todo.ReadableId(), "[ ] "+todo.description, todo.source)
 	case completed:
-		fmt.Println(todo.ReadableId(), aurora.Green("[x] "+todo.description), aurora.Gray(todo.source))
+		fmt.Println(todo.ReadableId(), aurora.Green("[x] "+todo.description), todo.source)
 	case ongoing:
-		fmt.Println(todo.ReadableId(), aurora.Brown("[/] "+todo.description), aurora.Gray(todo.source))
+		fmt.Println(todo.ReadableId(), aurora.Brown("[/] "+todo.description), todo.source)
 	case rejected:
-		fmt.Println(todo.ReadableId(), aurora.Black("[-] "+todo.description), aurora.Gray(todo.source))
+		fmt.Println(todo.ReadableId(), aurora.Black("[-] "+todo.description), todo.source)
 	}
 }
 
