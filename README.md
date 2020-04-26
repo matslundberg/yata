@@ -63,4 +63,5 @@ yata close these
 
 ```
 go get -u github.com/logrusorgru/aurora
+go get github.com/stretchr/testify/assert
 ```
